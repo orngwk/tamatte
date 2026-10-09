@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+:root {
+  --font-noto-sans-jp: "Noto Sans JP", sans-serif;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-noto-sans-jp), sans-serif;
+}
+/* 固定ヘッダー・スマホ下部メニューの表示領域 */
+body { padding-top: 64px; padding-bottom: 0; }
+@media (min-width: 640px) { body { padding-top: 69px; } }
+@media (max-width: 639px) { body { padding-bottom: 64px; } }
