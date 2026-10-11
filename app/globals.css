@@ -10,10 +10,32 @@ body {
   padding: 0;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   font-family: var(--font-noto-sans-jp), sans-serif;
+  padding-top: 64px;
+  padding-bottom: 0;
 }
+
+/* iPhoneで入力欄をタップしたときの自動ズームを防ぐ */
+input,
+textarea,
+select {
+  font-size: 16px;
+}
+
 /* 固定ヘッダー・スマホ下部メニューの表示領域 */
-body { padding-top: 64px; padding-bottom: 0; }
-@media (min-width: 640px) { body { padding-top: 69px; } }
-@media (max-width: 639px) { body { padding-bottom: 64px; } }
+@media (min-width: 640px) {
+  body {
+    padding-top: 69px;
+  }
+}
+
+@media (max-width: 639px) {
+  body {
+    padding-bottom: 64px;
+  }
+}
