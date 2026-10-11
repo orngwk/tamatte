@@ -36,6 +36,6 @@ select {
 
 @media (max-width: 639px) {
   body {
-    padding-bottom: 64px;
+    padding-bottom: 96px;
   }
 }

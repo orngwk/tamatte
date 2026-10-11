@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { usePathname } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 
 type User = {
@@ -46,6 +47,7 @@ const navItems = [
 ]
 
 export default function SiteMenu() {
+  const pathname = usePathname()
   const [user, setUser] = useState<User | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -179,14 +181,14 @@ export default function SiteMenu() {
 
       {/* スマホ用 下部メニュー */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#FFb770]/40 bg-white sm:hidden">
-        <div className="flex h-14 items-center justify-around px-1">
+        <div className="flex h-[84px] items-center justify-around px-1 pb-[env(safe-area-inset-bottom)]">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               aria-label={item.label}
               title={item.label}
-              className="flex h-12 min-w-0 flex-1 items-center justify-center rounded-full text-gray-600 transition hover:text-[#Fd9465] active:text-[#Fd9465]"
+              className={`flex h-16 min-w-0 flex-1 items-center justify-center rounded-full transition ${pathname === item.href || (item.href === "/timeline" && pathname === "/") ? "text-gray-600" : "text-gray-300"} hover:text-gray-600 active:text-gray-600`}
             >
               <span className="-translate-y-[2px]">
                 <Icon name={item.icon} size={25} />

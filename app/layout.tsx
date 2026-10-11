@@ -17,6 +17,10 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
   },
   manifest: "/manifest.webmanifest",
+  icons: {
+    apple: "/icons/apple-touch-icon.png",
+    icon: "/icons/app-icon-512.png",
+  },
 }
 
 export const viewport: Viewport = {
