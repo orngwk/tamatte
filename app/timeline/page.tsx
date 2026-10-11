@@ -148,6 +148,7 @@ export default function TimelinePage() {
     useState<string | null>(null)
 
   const [editTitle, setEditTitle] = useState("")
+  const [editRating, setEditRating] = useState(0)
   const [editDescription, setEditDescription] =
     useState("")
   const [editUrl, setEditUrl] = useState("")
@@ -1084,6 +1085,23 @@ export default function TimelinePage() {
 
     setEditTitle(item.title)
 
+    setEditRating(0)
+    void (async () => {
+      const { data: authResult } = await supabase.auth.getUser()
+      if (!authResult.user) return
+      const { data: ratingRow, error: ratingLoadError } = await supabase
+        .from("treasure_ratings")
+        .select("rating")
+        .eq("treasure_id", item.treasureId)
+        .eq("user_id", authResult.user.id)
+        .maybeSingle()
+      if (ratingLoadError) {
+        console.error("タイムライン編集時の評価読み込みに失敗:", ratingLoadError)
+        return
+      }
+      setEditRating(ratingRow?.rating ?? 0)
+    })()
+
     setEditDescription(
       item.description ?? ""
     )
@@ -1108,6 +1126,7 @@ export default function TimelinePage() {
 
     setEditingTreasureId(null)
     setEditTitle("")
+    setEditRating(0)
     setEditDescription("")
     setEditUrl("")
     setEditTimelineOnUpdate(true)
@@ -1223,6 +1242,34 @@ export default function TimelinePage() {
         `宝物の更新に失敗しました：${treasureError.message}`
       )
 
+      setSavingEdit(false)
+      return
+    }
+
+    const { data: ratingAuthResult, error: ratingAuthError } = await supabase.auth.getUser()
+    if (ratingAuthError || !ratingAuthResult.user) {
+      alert("ログイン状態を確認できないため、★評価を保存できませんでした。")
+      setSavingEdit(false)
+      return
+    }
+
+    const ratingSaveResult = editRating > 0
+      ? await supabase.from("treasure_ratings").upsert(
+          {
+            treasure_id: editingTreasureId,
+            user_id: ratingAuthResult.user.id,
+            rating: editRating,
+            updated_at: now,
+          },
+          { onConflict: "treasure_id,user_id" },
+        )
+      : await supabase.from("treasure_ratings").delete()
+          .eq("treasure_id", editingTreasureId)
+          .eq("user_id", ratingAuthResult.user.id)
+
+    if (ratingSaveResult.error) {
+      console.error("タイムライン上の評価保存に失敗:", ratingSaveResult.error)
+      alert(`★評価の保存に失敗しました：${ratingSaveResult.error.message}`)
       setSavingEdit(false)
       return
     }
@@ -1833,6 +1880,27 @@ export default function TimelinePage() {
 
                 </div>
 
+              </div>
+
+
+              <div>
+                <label className="mb-2 block text-sm font-bold">★ 評価</label>
+                <div className="flex flex-wrap items-center gap-1" role="group" aria-label="1〜5つ星評価">
+                  {[1, 2, 3, 4, 5].map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setEditRating(editRating === value ? 0 : value)}
+                      aria-label={`${value}つ星`}
+                      aria-pressed={editRating === value}
+                      className={`text-3xl transition ${editRating >= value ? "text-amber-400" : "text-gray-300"}`}
+                    >★</button>
+                  ))}
+                  {editRating > 0 && (
+                    <button type="button" onClick={() => setEditRating(0)} className="ml-2 text-xs text-gray-400 underline">クリア</button>
+                  )}
+                </div>
+                <p className="mt-1 text-xs text-gray-500">★を選んで上書き保存すると、評価も保存されます。</p>
               </div>
 
               {/* タイムライン再投稿 */}
