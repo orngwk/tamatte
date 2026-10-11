@@ -985,48 +985,6 @@ export default function TreasureBoxPage() {
       }
     }
 
-    // 編集画面で設定した★評価も、宝物本体とは別テーブルへ保存する
-    const { data: authData, error: authError } = await supabase.auth.getUser()
-    if (authError || !authData.user) {
-      console.error("評価保存時のユーザー取得に失敗:", authError)
-      alert("ログイン状態を確認できないため、★評価を保存できませんでした。")
-      setSavingEdit(false)
-      return
-    }
-
-    if (editRating > 0) {
-      const { error: ratingError } = await supabase
-        .from("treasure_ratings")
-        .upsert(
-          {
-            treasure_id: treasureId,
-            user_id: authData.user.id,
-            rating: editRating,
-          },
-          { onConflict: "treasure_id,user_id" },
-        )
-
-      if (ratingError) {
-        console.error("★評価の保存に失敗:", ratingError)
-        alert(`★評価の保存に失敗しました：${ratingError.message}`)
-        setSavingEdit(false)
-        return
-      }
-    } else {
-      const { error: ratingError } = await supabase
-        .from("treasure_ratings")
-        .delete()
-        .eq("treasure_id", treasureId)
-        .eq("user_id", authData.user.id)
-
-      if (ratingError) {
-        console.error("★評価の解除に失敗:", ratingError)
-        alert(`★評価の解除に失敗しました：${ratingError.message}`)
-        setSavingEdit(false)
-        return
-      }
-    }
-
     const currentItem = treasureItems.find(
       (item) => item.treasure_id === treasureId
     )
@@ -1917,6 +1875,36 @@ export default function TreasureBoxPage() {
         `宝物の更新に失敗しました：${error.message}`
       )
 
+      setSavingEdit(false)
+      return
+    }
+
+    // 編集画面で設定した★評価を、宝物本体とは別テーブルへ保存する
+    const { data: ratingAuthData, error: ratingAuthError } = await supabase.auth.getUser()
+    if (ratingAuthError || !ratingAuthData.user) {
+      console.error("評価保存時のユーザー取得に失敗:", ratingAuthError)
+      alert("ログイン状態を確認できないため、★評価を保存できませんでした。")
+      setSavingEdit(false)
+      return
+    }
+
+    const ratingResult = editRating > 0
+      ? await supabase.from("treasure_ratings").upsert(
+          {
+            treasure_id: treasureId,
+            user_id: ratingAuthData.user.id,
+            rating: editRating,
+            updated_at: now,
+          },
+          { onConflict: "treasure_id,user_id" },
+        )
+      : await supabase.from("treasure_ratings").delete()
+          .eq("treasure_id", treasureId)
+          .eq("user_id", ratingAuthData.user.id)
+
+    if (ratingResult.error) {
+      console.error("評価の保存に失敗:", ratingResult.error)
+      alert(`評価の保存に失敗しました：${ratingResult.error.message}`)
       setSavingEdit(false)
       return
     }
