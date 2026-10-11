@@ -179,6 +179,9 @@ export default function TreasureBoxPage() {
   const [searchQuery, setSearchQuery] =
     useState("")
 
+  const [statusFilter, setStatusFilter] =
+    useState("all")
+
   const [errorMessage, setErrorMessage] =
     useState("")
 
@@ -2070,14 +2073,25 @@ export default function TreasureBoxPage() {
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
 
-  const filteredTreasures = normalizedSearchQuery
-    ? treasures.filter((treasure) =>
-        treasure.title.toLowerCase().includes(normalizedSearchQuery) ||
-        (treasure.description ?? "")
-          .toLowerCase()
-          .includes(normalizedSearchQuery)
-      )
-    : treasures
+  const filteredTreasures = treasures.filter((treasure) => {
+    const matchesSearch =
+      !normalizedSearchQuery ||
+      treasure.title.toLowerCase().includes(normalizedSearchQuery) ||
+      (treasure.description ?? "")
+        .toLowerCase()
+        .includes(normalizedSearchQuery)
+
+    const treasureItem = treasureItems.find(
+      (item) => item.treasure_id === treasure.id,
+    )
+    const currentStatusId = treasureItem?.status_id ?? ""
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "none" && !currentStatusId) ||
+      currentStatusId === statusFilter
+
+    return matchesSearch && matchesStatus
+  })
 
   return (
     <main className="min-h-screen bg-[#fffaf0] px-4 pt-8 pb-28 text-gray-800 sm:px-6 sm:py-12">
@@ -2651,6 +2665,26 @@ export default function TreasureBoxPage() {
                 />
               </span>
             </div>
+          </div>
+
+          <div className="mt-3">
+            <label htmlFor="treasure-status-filter" className="mb-2 block text-sm font-bold text-gray-600">
+              ステータスで絞り込み
+            </label>
+            <select
+              id="treasure-status-filter"
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+              className="w-full rounded-2xl border border-[#FFB770] bg-white px-4 py-3 text-base text-gray-700 outline-none focus:border-[#FFB770] sm:max-w-sm"
+            >
+              <option value="all">すべて</option>
+              <option value="none">ステータスなし</option>
+              {statuses.map((status) => (
+                <option key={status.id} value={status.id}>
+                  {status.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {treasures.length === 0 ? (

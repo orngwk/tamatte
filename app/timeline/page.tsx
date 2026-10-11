@@ -1614,7 +1614,7 @@ export default function TimelinePage() {
 
                     <div className="mt-3 border-t border-gray-100 pt-2">
 
-                      <div className="flex items-center justify-end gap-2 sm:gap-3">
+                      <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
 
                         {/* メモ */}
                         <TreasureNotesRating treasureId={item.treasureId} mode="notes" />

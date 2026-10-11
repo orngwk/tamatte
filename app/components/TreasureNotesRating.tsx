@@ -85,14 +85,14 @@ export default function TreasureNotesRating({ treasureId, mode }: Props) {
   )
 
   return (
-    <div className="w-full">
+    <div className="contents">
       <button type="button" onClick={() => setOpen((value) => !value)} title="メモ" aria-label="メモ"
         className={`flex h-9 w-9 items-center justify-center rounded-full transition sm:h-10 sm:w-10 ${open ? "bg-orange-50 text-orange-500" : "text-gray-400 hover:bg-orange-50 hover:text-orange-500"}`}>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 8.7 3.9a8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z" /></svg>
         {notes.length > 0 && <span className="ml-0.5 text-xs font-bold text-gray-500">{notes.length}</span>}
       </button>
       {open && (
-        <section className="mt-3 w-full min-w-0 rounded-2xl border border-orange-100 bg-[#fffaf5] p-3 sm:p-4">
+        <section className="mt-3 basis-full w-full min-w-0 rounded-2xl border border-orange-100 bg-[#fffaf5] p-3 sm:p-4">
           {!userId ? <p className="text-sm text-gray-500">メモを使うにはログインしてください。</p> : <>
             <label className="mb-2 block text-sm font-bold text-gray-700" htmlFor={`note-${treasureId}`}>ひとことメモ</label>
             <div className="flex flex-col gap-2 sm:flex-row">
