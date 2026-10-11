@@ -985,6 +985,48 @@ export default function TreasureBoxPage() {
       }
     }
 
+    // 編集画面で設定した★評価も、宝物本体とは別テーブルへ保存する
+    const { data: authData, error: authError } = await supabase.auth.getUser()
+    if (authError || !authData.user) {
+      console.error("評価保存時のユーザー取得に失敗:", authError)
+      alert("ログイン状態を確認できないため、★評価を保存できませんでした。")
+      setSavingEdit(false)
+      return
+    }
+
+    if (editRating > 0) {
+      const { error: ratingError } = await supabase
+        .from("treasure_ratings")
+        .upsert(
+          {
+            treasure_id: treasureId,
+            user_id: authData.user.id,
+            rating: editRating,
+          },
+          { onConflict: "treasure_id,user_id" },
+        )
+
+      if (ratingError) {
+        console.error("★評価の保存に失敗:", ratingError)
+        alert(`★評価の保存に失敗しました：${ratingError.message}`)
+        setSavingEdit(false)
+        return
+      }
+    } else {
+      const { error: ratingError } = await supabase
+        .from("treasure_ratings")
+        .delete()
+        .eq("treasure_id", treasureId)
+        .eq("user_id", authData.user.id)
+
+      if (ratingError) {
+        console.error("★評価の解除に失敗:", ratingError)
+        alert(`★評価の解除に失敗しました：${ratingError.message}`)
+        setSavingEdit(false)
+        return
+      }
+    }
+
     const currentItem = treasureItems.find(
       (item) => item.treasure_id === treasureId
     )
