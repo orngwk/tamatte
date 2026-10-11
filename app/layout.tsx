@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Noto_Sans_JP } from "next/font/google"
 import "./globals.css"
 
@@ -11,6 +11,19 @@ const notoSansJP = Noto_Sans_JP({
 export const metadata: Metadata = {
   title: "宝箱",
   description: "好きなものをしまっておくSNS",
+  appleWebApp: {
+    capable: true,
+    title: "宝箱",
+    statusBarStyle: "default",
+  },
+  manifest: "/manifest.webmanifest",
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#FFF8F0",
 }
 
 export default function RootLayout({
@@ -20,9 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className={notoSansJP.variable}>
-        {children}
-      </body>
+      <body className={notoSansJP.variable}>{children}</body>
     </html>
   )
 }
