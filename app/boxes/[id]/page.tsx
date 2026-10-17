@@ -149,13 +149,12 @@ function VisibilityIcon({
   )
 }
 
-async function copyShareUrl(url: string) {
+async function shareUrl(url: string, title: string) {
   try {
     await navigator.clipboard.writeText(url)
-    alert("共有URLをコピーしました！")
-  } catch (error) {
-    console.error("共有URLのコピーに失敗:", error)
-    window.prompt("共有URLをコピーしてください", url)
+    alert(`${title}のURLをコピーしました。`)
+  } catch {
+    window.prompt("このURLをコピーしてください", url)
   }
 }
 
@@ -2188,11 +2187,11 @@ export default function TreasureBoxPage() {
                       alert("非公開・秘密の宝箱は共有できません。宝箱の公開設定を確認してください。")
                       return
                     }
-                    void copyShareUrl(`${window.location.origin}/boxes/${encodeURIComponent(box.id)}`)
+                    void shareUrl(`${window.location.origin}/boxes/${encodeURIComponent(box.id)}`, box.name)
                   }}
                   className="rounded-full border border-[#FFB770] px-4 py-2 text-xs font-bold text-[#FD9465] transition hover:bg-orange-50 sm:text-sm"
                 >
-                  宝箱のURLをコピー
+                  宝箱をシェア
                 </button>
               </div>
 
@@ -2810,7 +2809,9 @@ export default function TreasureBoxPage() {
                           <div className="min-w-0">
                             <div className="flex min-w-0 flex-col items-start gap-2">
                               <h3 className="min-w-0 max-w-full break-words text-base font-bold sm:text-xl">
-                                {treasure.title}
+                                <a href={`/treasures/${encodeURIComponent(treasure.id)}`} className="rounded-sm transition hover:text-[#D97722] hover:underline" title="宝物の詳細を見る">
+                                  {treasure.title}
+                                </a>
                               </h3>
 
                               <div className="flex flex-wrap items-center gap-2">
@@ -2818,23 +2819,6 @@ export default function TreasureBoxPage() {
                                   {formatDate(treasure.updated_at)}
                                 </span>
                                 <TreasureNotesRating treasureId={treasure.id} mode="rating" />
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const isPublicBox = box.visibility === "public" || (box.visibility == null && box.is_public)
-                                    const itemVisibility = item?.visibility
-                                    const isPublicTreasure = itemVisibility === "public" || itemVisibility === "box" || itemVisibility == null
-                                    if (!isPublicBox || !isPublicTreasure) {
-                                      alert("この宝物は公開されていないため共有できません。宝箱と宝物の公開設定を確認してください。")
-                                      return
-                                    }
-                                    const shareUrl = `${window.location.origin}/boxes/${encodeURIComponent(box.id)}#treasure-${encodeURIComponent(treasure.id)}`
-                                    void copyShareUrl(shareUrl)
-                                  }}
-                                  className="rounded-full border border-[#FFB770] px-3 py-1 text-xs font-bold text-[#FD9465] transition hover:bg-orange-50"
-                                >
-                                  URLをコピー
-                                </button>
                               </div>
 
                               {statuses.length >
@@ -2928,6 +2912,29 @@ export default function TreasureBoxPage() {
                           {/* 操作ボタン */}
                           <div className="mt-3 flex flex-wrap items-center justify-end gap-1 border-t border-orange-50 pt-2 sm:mt-4 sm:gap-2 sm:pt-3">
                             <TreasureNotesRating treasureId={treasure.id} mode="notes" />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const isPublicBox = box.visibility === "public" || (box.visibility == null && box.is_public)
+                                const itemVisibility = item?.visibility
+                                const isPublicTreasure = itemVisibility === "public" || itemVisibility === "box" || itemVisibility == null
+                                if (!isPublicBox || !isPublicTreasure) {
+                                  alert("この宝物は公開されていないため共有できません。宝箱と宝物の公開設定を確認してください。")
+                                  return
+                                }
+                                void shareUrl(`${window.location.origin}/treasures/${encodeURIComponent(treasure.id)}`, treasure.title)
+                              }}
+                              title="シェアURLをコピー"
+                              aria-label="シェアURLをコピー"
+                              className="flex h-9 w-9 items-center justify-center text-gray-400 transition hover:text-gray-600 sm:h-10 sm:w-10"
+                            >
+                              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <circle cx="18" cy="5" r="3" />
+                                <circle cx="6" cy="12" r="3" />
+                                <circle cx="18" cy="19" r="3" />
+                                <path d="m8.7 10.7 6.6-4.1M8.7 13.3l6.6 4.1" />
+                              </svg>
+                            </button>
                             {isOwner && (
                               <button
                                 type="button"

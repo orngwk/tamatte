@@ -84,13 +84,12 @@ function PlusIcon() {
   )
 }
 
-async function copyShareUrl(url: string) {
+async function shareUrl(url: string, title: string) {
   try {
     await navigator.clipboard.writeText(url)
-    alert("共有URLをコピーしました！")
-  } catch (error) {
-    console.error("共有URLのコピーに失敗:", error)
-    window.prompt("共有URLをコピーしてください", url)
+    alert(`${title}のURLをコピーしました。`)
+  } catch {
+    window.prompt("このURLをコピーしてください", url)
   }
 }
 
@@ -168,20 +167,6 @@ export default function BoxesPage() {
             <VisibilityIcon visibility={box.visibility} />
           </div>
         </a>
-        <button
-          type="button"
-          onClick={() => {
-            const isPublic = box.visibility === "public" || (box.visibility == null && box.is_public)
-            if (!isPublic) {
-              alert("非公開・秘密の宝箱は共有できません。宝箱の公開設定を確認してください。")
-              return
-            }
-            void copyShareUrl(`${window.location.origin}/boxes/${encodeURIComponent(box.id)}`)
-          }}
-          className="mt-4 rounded-full border border-[#FFB770] px-4 py-2 text-sm font-bold text-[#FD9465] transition hover:bg-orange-50"
-        >
-          URLをコピー
-        </button>
       </div>
     )
   }
